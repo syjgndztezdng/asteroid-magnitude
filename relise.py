@@ -24,11 +24,11 @@ AE = 149597870700 #[ae/m]
 # end_time = config['end_time']
 
 
-a_asteroid = 1.5 #[ae]
+a_asteroid = 0.72 #[ae]
 T_asteroid = np.sqrt(np.pow(a_asteroid, 3)) #[years]
 start_era = 0 #[years]
-albedo = 0.25
-D_asteroid = 17 #[km]
+albedo = 0.75
+D_asteroid = 12000 #[km]
 number_of_points = 100
 end_time = 5 #[years]
 
