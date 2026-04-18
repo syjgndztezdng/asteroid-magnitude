@@ -23,13 +23,18 @@ AE = 149597870700 #[ae/m]
 # number_of_points = config['number_of_points']
 # end_time = config['end_time']
 
-
+#Orbit
 a_asteroid = 0.72 #[ae]
 T_asteroid = np.sqrt(np.pow(a_asteroid, 3)) #[years]
+
 start_era = 0 #[years]
+
+#Body
 albedo = 0.75
 D_asteroid = 12000 #[km]
-number_of_points = 100
+
+#Simulation
+number_of_points = 300
 end_time = 5 #[years]
 
 #Functions
@@ -67,8 +72,11 @@ def get_phase(state_earth: list[float],  state_asteroid: list[float]) -> float:
     r_earth = xyz_distance([0, 0, 0, 0], state_earth) #[ae]
 
     cos_a = (np.pow(d_earth, 2) + np.pow(d_sun, 2) - np.pow(r_earth, 2)) / (2*d_earth*d_sun)
+    alpha = np.arccos(cos_a)
 
-    return (cos_a + 1) / 2
+    phase = (np.sin(alpha) + (np.pi - alpha) * np.cos(alpha)) / np.pi
+
+    return phase
 
 def get_magnitude(state_earth: list[float],  state_asteroid: list[float]) -> float:
     d_sun = xyz_distance([0, 0, 0, 0], state_asteroid) #[ae]
@@ -78,9 +86,10 @@ def get_magnitude(state_earth: list[float],  state_asteroid: list[float]) -> flo
     P_on_asteroid = E_on_asteroid * np.pi * np.pow(D_asteroid * 1000, 2) / 4 #[W]
     phase = get_phase(state_earth, state_asteroid)
 
-    E_on_earth = P_on_asteroid * albedo * phase / (4 * np.pi * np.pow(d_earth * AE, 2))
+    E_on_earth = P_on_asteroid * albedo * phase / (4 * np.pi * np.pow(d_earth * AE, 2)) + 1e-9 #[W / m2]
 
-    magnitude = Solar_magnitude + (2.5 * np.log10(Solar_constant / E_on_earth))
+
+    magnitude = -2.5 * np.log10(E_on_earth) - 21.1 #[m]
 
     return magnitude
 
@@ -121,8 +130,8 @@ def trajectory_plot():
     asteroid_y = asteroid_positions[:, 2]
     asteroid_z = asteroid_positions[:, 3]
 
-    trajectory.plot(asteroid_x, asteroid_y, earth_z, color='blue', label='Земля')
-    trajectory.plot(earth_x, earth_y, earth_z, color='green', label='Астероид')
+    trajectory.plot(asteroid_x, asteroid_y, asteroid_z, color='blue', label='Астероид')
+    trajectory.plot(earth_x, earth_y, earth_z, color='green', label='Земля')
     trajectory.scatter(0, 0, 0, color='yellow', s=100, edgecolors='orange')
     trajectory.set_xlabel('X, а.е.')
     trajectory.set_ylabel('Y, а.е.')
@@ -136,7 +145,7 @@ def trajectory_plot():
 magn_plot = fig.add_subplot()
 magn_plot.plot(times, magnitudes, label='Блеск астероида')
 magn_plot.invert_yaxis()
-magn_plot.set_ylabel('Блеск, а.е.')
+magn_plot.set_ylabel('Блеск, зв. величины')
 magn_plot.set_xlabel('Время, а.е.')
 magn_plot.set_title('График блеска по времени')
 magn_plot.legend()
