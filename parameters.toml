@@ -1,9 +1,16 @@
+#Orbit
+a_asteroid = 0.72 #[ae]
+i = 1 #[rad] наклон от эклиптики
+latitude = 0 #[rad] омега большая, долгота восх. узла
+peri_arg = 0 #[rad] аргумент перицентра
+e = 1 #эксцентриситет
 
-a_asteroid = 1.5 #[ae] большая полуось
-albedo = 1
-start_era = 0 #[years] начальная ера от перигелия
-D_asteroid = 1.7 #[km] диаметр астероида
-number_of_points = 100 # кол-во точек на всем периоде наблюдений
-end_time = 5 #[years] конец наблюдений
+start_era = 0 #[years]
 
-#потом добавлю и конфигурацию для 3Д и эллиптики
+#Body
+albedo = 0.75
+D_asteroid = 12000 #[km]
+
+#Simulation
+number_of_points = 1000
+end_time = 20 #[years]

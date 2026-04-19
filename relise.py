@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import sin, cos
 import matplotlib.pyplot as plt
-# import tomllib
+import tomllib
 
 #Constants
 
@@ -12,34 +12,37 @@ Solar_magnitude = -26.74 #[m]
 AE = 149597870700 #[ae/m]
 
 #Input
-#
-# with open('parameters.toml', 'rb') as file:
-#     config = tomllib.load(file)
-#
-# a_asteroid = config['a_asteroid']
-# T_asteroid = np.sqrt(np.pow(a_asteroid, 3)) #[years]
-# start_era = config['start_era']
-# albedo = config['albedo']
-# D_asteroid = config['D_asteroid']
-# number_of_points = config['number_of_points']
-# end_time = config['end_time']
+
+with open('parameters.toml', 'rb') as file:
+    config = tomllib.load(file)
+
+a_asteroid = config['a_asteroid']
+T_asteroid = np.sqrt(np.pow(a_asteroid, 3)) #[years]
+start_era = config['start_era']
+albedo = config['albedo']
+D_asteroid = config['D_asteroid']
+number_of_points = config['number_of_points']
+end_time = config['end_time']
+i = config['i']
+latitude = config['latitude']
+peri_arg = config['peri_arg']
 
 #Orbit
-a_asteroid = 0.72 #[ae]
-T_asteroid = np.sqrt(np.pow(a_asteroid, 3)) #[years]
-i = np.pi / 6 #[rad] наклон от эклиптики
-latitude = 0 #[rad] омега большая, долгота восх. узла
-peri_arg = 0 #[rad] аргумент перицентра
-
-start_era = 0 #[years]
-
-#Body
-albedo = 0.75
-D_asteroid = 12000 #[km]
-
-#Simulation
-number_of_points = 1000
-end_time = 20 #[years]
+# a_asteroid = 0.72 #[ae]
+# T_asteroid = np.sqrt(np.pow(a_asteroid, 3)) #[years]
+# i = np.pi / 6 #[rad] наклон от эклиптики
+# latitude = 0 #[rad] омега большая, долгота восх. узла
+# peri_arg = 0 #[rad] аргумент перицентра
+#
+# start_era = 0 #[years]
+#
+# #Body
+# albedo = 0.75
+# D_asteroid = 12000 #[km]
+#
+# #Simulation
+# number_of_points = 1000
+# end_time = 20 #[years]
 
 #Functions
 
