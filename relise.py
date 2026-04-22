@@ -2,6 +2,7 @@ import numpy as np
 from numpy import sin, cos
 import matplotlib.pyplot as plt
 import tomllib
+import kepler
 
 #Constants
 
@@ -26,6 +27,7 @@ end_time = config['end_time']
 i = config['i']
 latitude = config['latitude']
 peri_arg = config['peri_arg']
+e_asteroid = config['e']
 
 #Orbit
 # a_asteroid = 0.72 #[ae]
@@ -103,6 +105,16 @@ def get_magnitude(state_earth: np.ndarray, state_asteroid: np.ndarray) -> float:
 
     return magnitude
 
+def asteroid_ellipse_plane_position(t: float):
+    M = ((t / T_asteroid) % 1) * 2 * np.pi
+
+    E = kepler.eccentric_anomaly_binary_search(M, e_asteroid, 1e-9)
+    t = kepler.true_from_eccentric_anomaly(E, e_asteroid)
+    r = kepler.r_from_true_anomaly(t, e_asteroid, a_asteroid)
+
+    pos = kepler.get_xy(t, r)
+    return pos
+
 
 # Script
 
@@ -125,7 +137,7 @@ for i in range(number_of_points):
     earth_r = earth_position(t)
     earth_positions[i] = np.array([earth_r[0], earth_r[1], earth_r[2], t])
 
-    asteroid_xy = asteroid_plane_cirlce_position(t)
+    asteroid_xy = asteroid_ellipse_plane_position(t)
 
     asteroid_r = plane_position_to_space(asteroid_xy)
 
@@ -150,9 +162,9 @@ def trajectory_plot():
     asteroid_y = asteroid_positions[:, 1]
     asteroid_z = asteroid_positions[:, 2]
 
-    trajectory.plot(asteroid_x, asteroid_y, asteroid_z, color='blue', label='Астероид')
-    trajectory.plot(earth_x, earth_y, earth_z, color='green', label='Земля')
     trajectory.scatter(0, 0, 0, color='yellow', s=100, edgecolors='orange')
+    trajectory.plot(earth_x, earth_y, earth_z, color='green', label='Земля')
+    trajectory.plot(asteroid_x, asteroid_y, asteroid_z, color='blue', label='Астероид')
     trajectory.axis('equal')
     trajectory.set_xlabel('X, а.е.')
     trajectory.set_ylabel('Y, а.е.')

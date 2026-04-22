@@ -3,7 +3,7 @@ a_asteroid = 0.72 #[ae]
 i = 1 #[rad] наклон от эклиптики
 latitude = 0 #[rad] омега большая, долгота восх. узла
 peri_arg = 0 #[rad] аргумент перицентра
-e = 1 #эксцентриситет
+e = 0.7 #эксцентриситет
 
 start_era = 0 #[years]
 
@@ -12,5 +12,5 @@ albedo = 0.75
 D_asteroid = 12000 #[km]
 
 #Simulation
-number_of_points = 1000
+number_of_points = 10000
 end_time = 20 #[years]

@@ -1,6 +1,7 @@
 import numpy as np
 from numpy import sin, cos
 import matplotlib.pyplot as plt
+import kepler
 # import tomllib
 
 #Constants
@@ -27,6 +28,7 @@ AE = 149597870700 #[ae/m]
 #Orbit
 a_asteroid = 0.72 #[ae]
 T_asteroid = np.sqrt(np.pow(a_asteroid, 3)) #[years]
+e_asteroid = 0.7
 i = np.pi / 6 #[rad] наклон от эклиптики
 latitude = 0 #[rad] омега большая, долгота восх. узла
 peri_arg = 0 #[rad] аргумент перицентра
@@ -38,8 +40,8 @@ albedo = 0.75
 D_asteroid = 12000 #[km]
 
 #Simulation
-number_of_points = 1000
-end_time = 20 #[years]
+number_of_points = 10000
+end_time = T_asteroid * 5 #[years]
 
 #Functions
 
@@ -93,13 +95,22 @@ def get_magnitude(state_earth: np.ndarray, state_asteroid: np.ndarray) -> float:
     P_on_asteroid = E_on_asteroid * np.pi * np.pow(D_asteroid * 1000, 2) / 4 #[W]
     phase = get_phase(state_earth, state_asteroid)
 
-    E_on_earth = P_on_asteroid * albedo * phase / (4 * np.pi * np.pow(d_earth * AE, 2)) + 1e-9 #[W / m2]
+    E_on_earth = P_on_asteroid * albedo * phase / (4 * np.pi * np.pow(d_earth * AE, 2)) + 1e-12 #[W / m2]
 
 
     magnitude = -2.5 * np.log10(E_on_earth) - 21.1 #[m]
 
     return magnitude
 
+def asteroid_ellipse_plane_position(t: float):
+    M = ((t / T_asteroid) % 1) * 2 * np.pi
+
+    E = kepler.eccentric_anomaly_binary_search(M, e_asteroid, 1e-9)
+    t = kepler.true_from_eccentric_anomaly(E, e_asteroid)
+    r = kepler.r_from_true_anomaly(t, e_asteroid, a_asteroid)
+
+    pos = kepler.get_xy(t, r)
+    return pos
 
 # Script
 
@@ -122,7 +133,7 @@ for i in range(number_of_points):
     earth_r = earth_position(t)
     earth_positions[i] = np.array([earth_r[0], earth_r[1], earth_r[2], t])
 
-    asteroid_xy = asteroid_plane_cirlce_position(t)
+    asteroid_xy = asteroid_ellipse_plane_position(t)
 
     asteroid_r = plane_position_to_space(asteroid_xy)
 
@@ -147,9 +158,9 @@ def trajectory_plot():
     asteroid_y = asteroid_positions[:, 1]
     asteroid_z = asteroid_positions[:, 2]
 
-    trajectory.plot(asteroid_x, asteroid_y, asteroid_z, color='blue', label='Астероид')
-    trajectory.plot(earth_x, earth_y, earth_z, color='green', label='Земля')
     trajectory.scatter(0, 0, 0, color='yellow', s=100, edgecolors='orange')
+    trajectory.plot(earth_x, earth_y, earth_z, color='green', label='Земля')
+    trajectory.plot(asteroid_x, asteroid_y, asteroid_z, color='blue', label='Астероид')
     trajectory.axis('equal')
     trajectory.set_xlabel('X, а.е.')
     trajectory.set_ylabel('Y, а.е.')
