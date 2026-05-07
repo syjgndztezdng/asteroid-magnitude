@@ -1,8 +1,8 @@
 import numpy as np
 from numpy import sin, cos
 import matplotlib.pyplot as plt
-import tomllib
 import kepler
+import tomllib
 
 #Constants
 
@@ -11,6 +11,7 @@ a_earth = 1 #[ae]
 Solar_constant = 1360.8 #[W / m2]
 Solar_magnitude = -26.74 #[m]
 AE = 149597870700 #[ae/m]
+Flux_const = 20.6 #[m]
 
 #Input
 
@@ -32,7 +33,8 @@ e_asteroid = config['e']
 #Orbit
 # a_asteroid = 0.72 #[ae]
 # T_asteroid = np.sqrt(np.pow(a_asteroid, 3)) #[years]
-# i = np.pi / 6 #[rad] наклон от эклиптики
+# e_asteroid = 0
+# i = 0 #[rad] наклон от эклиптики
 # latitude = 0 #[rad] омега большая, долгота восх. узла
 # peri_arg = 0 #[rad] аргумент перицентра
 #
@@ -43,8 +45,8 @@ e_asteroid = config['e']
 # D_asteroid = 12000 #[km]
 #
 # #Simulation
-# number_of_points = 1000
-# end_time = 20 #[years]
+# number_of_points = 10000
+# end_time = T_asteroid * 5 #[years]
 
 #Functions
 
@@ -98,10 +100,10 @@ def get_magnitude(state_earth: np.ndarray, state_asteroid: np.ndarray) -> float:
     P_on_asteroid = E_on_asteroid * np.pi * np.pow(D_asteroid * 1000, 2) / 4 #[W]
     phase = get_phase(state_earth, state_asteroid)
 
-    E_on_earth = P_on_asteroid * albedo * phase / (4 * np.pi * np.pow(d_earth * AE, 2)) + 1e-9 #[W / m2]
+    E_on_earth = P_on_asteroid * albedo * phase / (4 * np.pi * np.pow(d_earth * AE, 2)) + 1e-12 #[W / m2]
 
 
-    magnitude = -2.5 * np.log10(E_on_earth) - 21.1 #[m]
+    magnitude = -2.5 * np.log10(E_on_earth) - Flux_const #[m]
 
     return magnitude
 
@@ -115,6 +117,15 @@ def asteroid_ellipse_plane_position(t: float):
     pos = kepler.get_xy(t, r)
     return pos
 
+def get_elongation(state_earth: np.ndarray,  state_asteroid: np.ndarray) -> float:
+    d_sun = xyz_distance([0, 0, 0, 0], state_asteroid) #[ae]
+    d_earth = xyz_distance(state_asteroid, state_earth) #[ae]
+    r_earth = xyz_distance([0, 0, 0, 0], state_earth) #[ae]
+
+    cos_a = (np.pow(d_earth, 2) + np.pow(r_earth, 2) - np.pow(d_sun, 2)) / (2*d_earth*r_earth)
+    alpha = np.arccos(cos_a)
+    
+    return alpha
 
 # Script
 
@@ -130,6 +141,8 @@ times = np.linspace(0, end_time, number_of_points)
 earth_positions = np.zeros((number_of_points, 4), dtype=float)
 asteroid_positions = np.zeros((number_of_points, 4), dtype=float)
 magnitudes = np.zeros((number_of_points), dtype=float)
+elongations = np.zeros((number_of_points), dtype=float)
+phases = np.zeros((number_of_points), dtype=float)
 
 for i in range(number_of_points):
     t = times[i]
@@ -145,6 +158,10 @@ for i in range(number_of_points):
     
 
     magnitudes[i] = get_magnitude(earth_positions[i], asteroid_positions[i])
+    elongations[i] = get_elongation(earth_positions[i], asteroid_positions[i])
+    phases[i] = get_phase(earth_positions[i], asteroid_positions[i])
+
+
 
 
 #Plotting
@@ -152,7 +169,7 @@ for i in range(number_of_points):
 fig = plt.figure(figsize=(12, 5))
 
 def trajectory_plot():
-    trajectory = fig.add_subplot(2, 1, 1, projection='3d')
+    trajectory = fig.add_subplot(2, 2, 1, projection='3d')
 
     earth_x = earth_positions[:, 0]
     earth_y = earth_positions[:, 1]
@@ -175,13 +192,22 @@ def trajectory_plot():
 trajectory_plot()
 
 
-magn_plot = fig.add_subplot(2, 1, 2)
+magn_plot = fig.add_subplot(2, 2, 2)
 magn_plot.plot(times, magnitudes, label='Блеск астероида')
 magn_plot.invert_yaxis()
 magn_plot.set_ylabel('Блеск, зв. величины')
 magn_plot.set_xlabel('Время, а.е.')
 magn_plot.set_title('График блеска по времени')
 magn_plot.legend()
+
+
+elo_plot = fig.add_subplot(2, 2, 3)
+elo_plot.plot(times, elongations * 180 / np.pi, label='Элонгация от времени')
+elo_plot.set_title('Элонгация от времени')
+
+phase_elo = fig.add_subplot(2, 2, 4)
+phase_elo.plot(elongations * 180 / np.pi, phases, label='Фаза от элонгации')
+phase_elo.set_title('Фаза от элонгации')
 
 plt.savefig('plot.png', dpi=500)
 plt.show()
