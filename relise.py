@@ -86,9 +86,7 @@ def get_phase(state_earth: np.ndarray,  state_asteroid: np.ndarray) -> float:
     r_earth = xyz_distance([0, 0, 0, 0], state_earth) #[ae]
 
     cos_a = (np.pow(d_earth, 2) + np.pow(d_sun, 2) - np.pow(r_earth, 2)) / (2*d_earth*d_sun)
-    alpha = np.arccos(cos_a)
-
-    phase = (np.sin(alpha) + (np.pi - alpha) * np.cos(alpha)) / np.pi
+    phase = (1 + cos_a) / 2
 
     return phase
 
