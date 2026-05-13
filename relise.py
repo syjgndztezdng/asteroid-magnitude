@@ -194,7 +194,7 @@ magn_plot = fig.add_subplot(2, 2, 2)
 magn_plot.plot(times, magnitudes, label='Блеск астероида')
 magn_plot.invert_yaxis()
 magn_plot.set_ylabel('Блеск, зв. величины')
-magn_plot.set_xlabel('Время, а.е.')
+magn_plot.set_xlabel('Время, года')
 magn_plot.set_title('График блеска по времени')
 magn_plot.legend()
 
