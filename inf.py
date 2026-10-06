@@ -1,35 +1,23 @@
-n, m = map(int, input().split())
+m, n = map(int, input().split())
+grid = [input().strip() for _ in range(m)]
 
-adj = [[] for _ in range(n + 1)]
-for _ in range(m):
-    u, v = map(int, input().split())
-    adj[u].append(v)
-    adj[v].append(u)
+visited = [[False] * n for _ in range(m)]
+components = 0
 
-color = [0] * (n + 1)
-possible = True
+for i in range(m):
+    for j in range(n):
+        if grid[i][j] == '#' and not visited[i][j]:
+            components += 1
+            visited[i][j] = True
+            stack = [(i, j)]
+            
+            while stack:
+                r, c = stack.pop()
+                for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < m and 0 <= nc < n:
+                        if grid[nr][nc] == '#' and not visited[nr][nc]:
+                            visited[nr][nc] = True
+                            stack.append((nr, nc))
 
-for i in range(1, n + 1):
-    if color[i] == 0:
-        color[i] = 1
-        stack = [i]
-        while stack:
-            curr = stack.pop()
-            for neighbor in adj[curr]:
-                if color[neighbor] == 0:
-                    color[neighbor] = 3 - color[curr]
-                    stack.append(neighbor)
-                elif color[neighbor] == color[curr]:
-                    possible = False
-                    break
-            if not possible:
-                break
-    if not possible:
-        break
-
-if possible:
-    print("YES")
-    first_table = [i for i in range(1, n + 1) if color[i] == 1]
-    print(*first_table)
-else:
-    print("NO")
+print(components)
