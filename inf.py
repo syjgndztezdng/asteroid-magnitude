@@ -1,29 +1,35 @@
-n = int(input())
-adj = [list(map(int, input().split())) for _ in range(n)]
+n, m = map(int, input().split())
 
-edges = 0
-for i in range(n):
-    for j in range(i + 1, n):
-        if adj[i][j] == 1:
-            edges += 1
+adj = [[] for _ in range(n + 1)]
+for _ in range(m):
+    u, v = map(int, input().split())
+    adj[u].append(v)
+    adj[v].append(u)
 
-if edges != n - 1:
-    print("NO")
+color = [0] * (n + 1)
+possible = True
+
+for i in range(1, n + 1):
+    if color[i] == 0:
+        color[i] = 1
+        stack = [i]
+        while stack:
+            curr = stack.pop()
+            for neighbor in adj[curr]:
+                if color[neighbor] == 0:
+                    color[neighbor] = 3 - color[curr]
+                    stack.append(neighbor)
+                elif color[neighbor] == color[curr]:
+                    possible = False
+                    break
+            if not possible:
+                break
+    if not possible:
+        break
+
+if possible:
+    print("YES")
+    first_table = [i for i in range(1, n + 1) if color[i] == 1]
+    print(*first_table)
 else:
-    visited = [False] * n
-    stack = [0]
-    visited[0] = True
-    count = 0
-
-    while stack:
-        curr = stack.pop()
-        count += 1
-        for neighbor in range(n):
-            if adj[curr][neighbor] == 1 and not visited[neighbor]:
-                visited[neighbor] = True
-                stack.append(neighbor)
-
-    if count == n:
-        print("YES")
-    else:
-        print("NO")
+    print("NO")
