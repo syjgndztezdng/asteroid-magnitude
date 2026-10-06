@@ -1,29 +1,29 @@
-n, m = map(int, input().split())
+n = int(input())
+adj = [list(map(int, input().split())) for _ in range(n)]
 
-adj = [[] for _ in range(n + 1)]
-for _ in range(m):
-    u, v = map(int, input().split())
-    adj[u].append(v)
-    adj[v].append(u)
+edges = 0
+for i in range(n):
+    for j in range(i + 1, n):
+        if adj[i][j] == 1:
+            edges += 1
 
-visited = [False] * (n + 1)
-components = []
+if edges != n - 1:
+    print("NO")
+else:
+    visited = [False] * n
+    stack = [0]
+    visited[0] = True
+    count = 0
 
-for i in range(1, n + 1):
-    if not visited[i]:
-        comp = []
-        stack = [i]
-        visited[i] = True
-        while stack:
-            curr = stack.pop()
-            comp.append(curr)
-            for neighbor in adj[curr]:
-                if not visited[neighbor]:
-                    visited[neighbor] = True
-                    stack.append(neighbor)
-        components.append(comp)
+    while stack:
+        curr = stack.pop()
+        count += 1
+        for neighbor in range(n):
+            if adj[curr][neighbor] == 1 and not visited[neighbor]:
+                visited[neighbor] = True
+                stack.append(neighbor)
 
-print(len(components))
-for comp in components:
-    print(len(comp))
-    print(*comp)
+    if count == n:
+        print("YES")
+    else:
+        print("NO")
